@@ -64,3 +64,8 @@ dist/
 
 # NuGet local cache (set by flake.nix)
 .nuget/
+
+# Excel reference files
+*.xlsx
+*.xls
+*.xlsm
