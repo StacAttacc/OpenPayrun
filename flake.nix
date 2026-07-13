@@ -17,7 +17,6 @@
           packages = with pkgs; [
             dotnet-sdk_9
             nodejs_22
-            nodePackages."@angular/cli"
             podman
             git
           ];
@@ -26,6 +25,13 @@
           NUGET_PACKAGES = "${toString ./.}/.nuget/packages";
 
           shellHook = ''
+            export NPM_CONFIG_PREFIX=$PWD/.npm-global
+            export PATH=$NPM_CONFIG_PREFIX/bin:$PATH
+            if ! command -v ng &>/dev/null; then
+              echo "  installing Angular CLI..."
+              npm install -g @angular/cli --silent
+            fi
+
             MSSQL_PASSWORD="${mssqlPassword}"
 
             if podman ps -a --filter "name=osbooks-mssql" -q 2>/dev/null | grep -q .; then
@@ -56,7 +62,7 @@
             echo ""
             echo "  dotnet : $(dotnet --version)"
             echo "  node   : $(node --version)"
-            echo "  ng     : $(ng version --skip-confirmation 2>/dev/null | grep 'Angular CLI' | awk '{print $NF}')"
+            echo "  ng     : $(ng version --skip-confirmation 2>/dev/null | grep 'Angular CLI' | awk '{print $NF}' || echo n/a)"
             echo "  mssql  : localhost:1433  sa / $MSSQL_PASSWORD"
             echo ""
           '';

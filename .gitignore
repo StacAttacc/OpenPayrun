@@ -60,6 +60,7 @@ nunit-*.xml
 node_modules/
 dist/
 .angular/
+.npm-global/
 
 # NuGet local cache (set by flake.nix)
 .nuget/
