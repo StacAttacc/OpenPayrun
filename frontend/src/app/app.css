@@ -1,0 +1,12 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #1a1a2e;
+  color: white;
+}
+.navbar .brand { font-weight: 700; margin-right: auto; }
+.navbar a { color: #ccc; text-decoration: none; }
+.navbar a.active { color: white; border-bottom: 2px solid white; }
+.content { padding: 2rem 1.5rem; }

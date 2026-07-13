@@ -1,0 +1,19 @@
+<h1>Employees</h1>
+@if (employees.length > 0) {
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Hourly Rate</th><th>Start Date</th></tr>
+    </thead>
+    <tbody>
+      @for (emp of employees; track emp.id) {
+        <tr>
+          <td>{{ emp.firstName }} {{ emp.lastName }}</td>
+          <td>{{ emp.hourlyRate | currency:'CAD':'symbol-narrow' }}</td>
+          <td>{{ emp.startDate | date:'mediumDate' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+} @else {
+  <p>No employees found.</p>
+}
