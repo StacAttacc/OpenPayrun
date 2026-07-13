@@ -1,14 +1,10 @@
-using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using OSBooks.Api.Infrastructure.Persistence;
+using OSBooks.Application;
+using OSBooks.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
-
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

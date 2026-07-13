@@ -1,6 +1,4 @@
-using OSBooks.Api.Features.Employees;
-
-namespace OSBooks.Api.Features.Payroll;
+namespace OSBooks.Domain.Entities;
 
 public class PayRun
 {

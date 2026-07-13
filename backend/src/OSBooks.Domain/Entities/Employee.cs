@@ -1,4 +1,4 @@
-namespace OSBooks.Api.Features.Employees;
+namespace OSBooks.Domain.Entities;
 
 public class Employee
 {
