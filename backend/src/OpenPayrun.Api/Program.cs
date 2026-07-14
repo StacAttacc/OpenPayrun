@@ -1,4 +1,6 @@
+using MediatR;
 using OpenPayrun.Application;
+using OpenPayrun.Application.Features.Payroll;
 using OpenPayrun.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,5 +21,11 @@ builder.Services.AddInfrastructure(builder.Configuration);
 var app = builder.Build();
 
 app.UseCors("AllowedOrigins");
+
+app.MapPost("/api/payruns", async (CreatePayRunCommand command, ISender sender) =>
+{
+    var result = await sender.Send(command);
+    return Results.Created($"/api/payruns/{result.Id}", result);
+});
 
 app.Run();
