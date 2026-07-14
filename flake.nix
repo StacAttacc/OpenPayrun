@@ -21,9 +21,9 @@
           ];
 
           DOTNET_ROOT = "${pkgs.dotnet-sdk_9}";
-          NUGET_PACKAGES = "${toString ./.}/.nuget/packages";
 
           shellHook = ''
+            export NUGET_PACKAGES=$PWD/.nuget/packages
             export NPM_CONFIG_PREFIX=$PWD/.npm-global
             export PATH=$NPM_CONFIG_PREFIX/bin:$PATH
             if ! command -v ng &>/dev/null; then
