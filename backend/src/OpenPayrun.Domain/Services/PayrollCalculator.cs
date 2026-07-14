@@ -14,57 +14,61 @@ public static class PayrollCalculator
         decimal ytdQppTier2 = 0,
         decimal ytdEiPremiums = 0,
         decimal ytdQpipPremiums = 0,
-        decimal federalClaimAmount = TaxRates2025.FederalBasicPersonalAmount,
-        decimal quebecClaimAmount = TaxRates2025.QuebecBasicPersonalAmount,
-        decimal fssqRate = TaxRates2025.FssqSmallEmployerRate)
+        decimal federalClaimAmount = 0,
+        decimal quebecClaimAmount = 0,
+        ITaxRates? rates = null)
     {
+        rates ??= new TaxRates2025();
+        if (federalClaimAmount == 0) federalClaimAmount = rates.FederalBasicPersonalAmount;
+        if (quebecClaimAmount == 0) quebecClaimAmount = rates.QuebecBasicPersonalAmount;
+
         int periods = (int)frequency;
 
-        var perPeriodExemption = TaxRates2025.QppExemption / periods;
+        var perPeriodExemption = rates.QppExemption / periods;
         var qppTier1Pensionable = Math.Max(grossPay - perPeriodExemption, 0);
-        var qppTier1 = CapDeduction(qppTier1Pensionable * TaxRates2025.QppTier1Rate,
-            ytdQppTier1, TaxRates2025.QppTier1MaxEmployee);
+        var qppTier1 = CapDeduction(qppTier1Pensionable * rates.QppTier1Rate,
+            ytdQppTier1, rates.QppTier1MaxEmployee);
 
         var qppTier2 = CapDeduction(
-            EarningsInBand(ytdGrossEarnings, grossPay, TaxRates2025.QppYmpe, TaxRates2025.QppYampe)
-                * TaxRates2025.QppTier2Rate,
-            ytdQppTier2, TaxRates2025.QppTier2MaxEmployee);
+            EarningsInBand(ytdGrossEarnings, grossPay, rates.QppYmpe, rates.QppYampe)
+                * rates.QppTier2Rate,
+            ytdQppTier2, rates.QppTier2MaxEmployee);
 
         var ei = CapDeduction(
-            EarningsInBand(ytdGrossEarnings, grossPay, 0, TaxRates2025.EiMaxInsurableEarnings)
-                * TaxRates2025.EiEmployeeRate,
-            ytdEiPremiums, TaxRates2025.EiMaxEmployeePremium);
+            EarningsInBand(ytdGrossEarnings, grossPay, 0, rates.EiMaxInsurableEarnings)
+                * rates.EiEmployeeRate,
+            ytdEiPremiums, rates.EiMaxEmployeePremium);
 
-        var qpipBase = EarningsInBand(ytdGrossEarnings, grossPay, 0, TaxRates2025.QpipMaxInsurableEarnings);
-        var qpip = CapDeduction(qpipBase * TaxRates2025.QpipEmployeeRate,
-            ytdQpipPremiums, TaxRates2025.QpipMaxEmployeePremium);
+        var qpipBase = EarningsInBand(ytdGrossEarnings, grossPay, 0, rates.QpipMaxInsurableEarnings);
+        var qpip = CapDeduction(qpipBase * rates.QpipEmployeeRate,
+            ytdQpipPremiums, rates.QpipMaxEmployeePremium);
 
         var annualGross = grossPay * periods;
 
         // F5Q per period: QPP enhanced (1%) + Tier 2 — income deduction per T4127 Step 1 / TP-1015.F CSA
-        var f5q = qppTier1 * (TaxRates2025.QppAdditionalTier1Rate / TaxRates2025.QppTier1Rate) + qppTier2;
+        var f5q = qppTier1 * (rates.QppAdditionalTier1Rate / rates.QppTier1Rate) + qppTier2;
 
         // Federal tax — T4127 formula for Quebec residents
         var federalTaxableIncome = Math.Max(annualGross - f5q * periods, 0);
         var annualQppBaseCredit = Math.Min(
-            qppTier1 * (TaxRates2025.QppBaseRate / TaxRates2025.QppTier1Rate) * periods,
-            TaxRates2025.QppTier1MaxEmployee * (TaxRates2025.QppBaseRate / TaxRates2025.QppTier1Rate));
-        var annualEiCredit = Math.Min(ei * periods, TaxRates2025.EiMaxEmployeePremium);
-        var annualQpipCredit = Math.Min(qpipBase * TaxRates2025.QpipEmployeeRate * periods, TaxRates2025.QpipMaxEmployeePremium);
-        var federalCredits = TaxRates2025.FederalLowestRate * (federalClaimAmount
-            + Math.Min(annualGross, TaxRates2025.FederalEmploymentAmount)
+            qppTier1 * (rates.QppBaseRate / rates.QppTier1Rate) * periods,
+            rates.QppTier1MaxEmployee * (rates.QppBaseRate / rates.QppTier1Rate));
+        var annualEiCredit = Math.Min(ei * periods, rates.EiMaxEmployeePremium);
+        var annualQpipCredit = Math.Min(qpipBase * rates.QpipEmployeeRate * periods, rates.QpipMaxEmployeePremium);
+        var federalCredits = rates.FederalLowestRate * (federalClaimAmount
+            + Math.Min(annualGross, rates.FederalEmploymentAmount)
             + annualQppBaseCredit + annualEiCredit + annualQpipCredit);
-        var federalIncomeTax = Math.Max(ApplyBrackets(federalTaxableIncome, TaxRates2025.FederalBrackets) - federalCredits, 0)
-            * (1 - TaxRates2025.QuebecFederalAbatement) / periods;
+        var federalIncomeTax = Math.Max(ApplyBrackets(federalTaxableIncome, rates.FederalBrackets) - federalCredits, 0)
+            * (1 - rates.QuebecFederalAbatement) / periods;
 
         // Quebec tax — TP-1015.F Section 2.1.1 formula
         // H per period: déduction pour travailleur; cap is floor(1 420 ÷ P) — whole-dollar truncation per TP-1015.F
-        var hPerPeriod = Math.Min(grossPay * TaxRates2025.QuebecWorkerDeductionRate,
-            Math.Floor(TaxRates2025.QuebecWorkerDeductionMax / periods));
+        var hPerPeriod = Math.Min(grossPay * rates.QuebecWorkerDeductionRate,
+            Math.Floor(rates.QuebecWorkerDeductionMax / periods));
         var quebecTaxableIncome = Math.Max((grossPay - hPerPeriod - f5q) * periods, 0);
         // Quebec credit is personal amount only — QPP/EI/QPIP are not provincial credits (unlike federal K2Q)
-        var quebecCredits = quebecClaimAmount * TaxRates2025.QuebecLowestRate;
-        var quebecIncomeTax = Math.Max(ApplyBrackets(quebecTaxableIncome, TaxRates2025.QuebecBrackets) - quebecCredits, 0) / periods;
+        var quebecCredits = quebecClaimAmount * rates.QuebecLowestRate;
+        var quebecIncomeTax = Math.Max(ApplyBrackets(quebecTaxableIncome, rates.QuebecBrackets) - quebecCredits, 0) / periods;
 
         return new PayrollDeductions
         {
@@ -77,9 +81,9 @@ public static class PayrollCalculator
             QuebecIncomeTax = Round(quebecIncomeTax),
             EmployerQppTier1 = Round(qppTier1),
             EmployerQppTier2 = Round(qppTier2),
-            EmployerEi = Round(Round(ei) * TaxRates2025.EiEmployerMultiplier),
-            EmployerQpip = Round(Math.Min(qpipBase * TaxRates2025.QpipEmployerRate, TaxRates2025.QpipMaxEmployerPremium)),
-            EmployerFssq = Round(grossPay * fssqRate),
+            EmployerEi = Round(Round(ei) * rates.EiEmployerMultiplier),
+            EmployerQpip = Round(Math.Min(qpipBase * rates.QpipEmployerRate, rates.QpipMaxEmployerPremium)),
+            EmployerFssq = Round(grossPay * rates.FssqSmallEmployerRate),
         };
     }
 
