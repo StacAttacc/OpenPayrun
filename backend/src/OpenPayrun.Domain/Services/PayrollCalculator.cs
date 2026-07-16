@@ -9,6 +9,7 @@ public static class PayrollCalculator
     public static PayrollDeductions Calculate(
         decimal grossPay,
         PayFrequency frequency,
+        ITaxRates rates,
         decimal ytdGrossEarnings = 0,
         decimal ytdQppTier1 = 0,
         decimal ytdQppTier2 = 0,
@@ -16,10 +17,8 @@ public static class PayrollCalculator
         decimal ytdQpipPremiums = 0,
         decimal federalClaimAmount = 0,
         decimal quebecClaimAmount = 0,
-        ITaxRates? rates = null,
         bool selfEmployed = false)
     {
-        rates ??= new TaxRates2025();
         if (federalClaimAmount == 0) federalClaimAmount = rates.FederalBasicPersonalAmount;
         if (quebecClaimAmount == 0) quebecClaimAmount = rates.QuebecBasicPersonalAmount;
 

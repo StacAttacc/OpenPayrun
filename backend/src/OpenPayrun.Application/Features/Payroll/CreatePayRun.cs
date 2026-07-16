@@ -1,6 +1,6 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using OpenPayrun.Application.Interfaces;
-using OpenPayrun.Domain.Constants;
 using OpenPayrun.Domain.Entities;
 using OpenPayrun.Domain.Enums;
 using OpenPayrun.Domain.Services;
@@ -47,12 +47,12 @@ public class CreatePayRunHandler(IAppDbContext db) : IRequestHandler<CreatePayRu
 {
     public async Task<PayRunResponse> Handle(CreatePayRunCommand req, CancellationToken ct)
     {
-        ITaxRates rates = req.PeriodStart.Year switch
-        {
-            2025 => new TaxRates2025(),
-            2026 => new TaxRates2026(),
-            _ => throw new NotSupportedException($"No tax rates configured for {req.PeriodStart.Year}.")
-        };
+        var rates = await db.TaxRateSets
+            .Include(r => r.Brackets)
+            .Where(r => r.EffectiveFrom <= req.PeriodStart &&
+                        (r.EffectiveTo == null || r.EffectiveTo >= req.PeriodStart))
+            .FirstOrDefaultAsync(ct)
+            ?? throw new NotSupportedException($"No tax rates configured for {req.PeriodStart}.");
 
         var d = PayrollCalculator.Calculate(
             req.GrossPay, req.Frequency,
