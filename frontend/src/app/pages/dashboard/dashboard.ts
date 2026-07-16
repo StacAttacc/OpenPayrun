@@ -17,6 +17,7 @@ export class Dashboard {
   showModal = false;
   period = '';
   grossPay = 0;
+  selfEmployed = false;
   submitting = false;
 
   openModal() { this.showModal = true; }
@@ -25,6 +26,7 @@ export class Dashboard {
     this.showModal = false;
     this.period = '';
     this.grossPay = 0;
+    this.selfEmployed = false;
   }
 
   submit() {
@@ -41,6 +43,7 @@ export class Dashboard {
       periodEnd,
       grossPay: this.grossPay,
       frequency: 12,
+      selfEmployed: this.selfEmployed,
       ytdGrossEarnings: 0,
       ytdQppTier1: 0,
       ytdQppTier2: 0,

@@ -13,6 +13,7 @@ public record CreatePayRunCommand(
     DateOnly PeriodEnd,
     decimal GrossPay,
     PayFrequency Frequency,
+    bool SelfEmployed = false,
     decimal YtdGrossEarnings = 0,
     decimal YtdQppTier1 = 0,
     decimal YtdQppTier2 = 0,
@@ -49,6 +50,7 @@ public class CreatePayRunHandler(IAppDbContext db) : IRequestHandler<CreatePayRu
         ITaxRates rates = req.PeriodStart.Year switch
         {
             2025 => new TaxRates2025(),
+            2026 => new TaxRates2026(),
             _ => throw new NotSupportedException($"No tax rates configured for {req.PeriodStart.Year}.")
         };
 
@@ -59,7 +61,8 @@ public class CreatePayRunHandler(IAppDbContext db) : IRequestHandler<CreatePayRu
             ytdQppTier2: req.YtdQppTier2,
             ytdEiPremiums: req.YtdEiPremiums,
             ytdQpipPremiums: req.YtdQpipPremiums,
-            rates: rates);
+            rates: rates,
+            selfEmployed: req.SelfEmployed);
 
         var payRun = new PayRun
         {

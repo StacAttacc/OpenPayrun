@@ -16,7 +16,8 @@ public static class PayrollCalculator
         decimal ytdQpipPremiums = 0,
         decimal federalClaimAmount = 0,
         decimal quebecClaimAmount = 0,
-        ITaxRates? rates = null)
+        ITaxRates? rates = null,
+        bool selfEmployed = false)
     {
         rates ??= new TaxRates2025();
         if (federalClaimAmount == 0) federalClaimAmount = rates.FederalBasicPersonalAmount;
@@ -34,7 +35,7 @@ public static class PayrollCalculator
                 * rates.QppTier2Rate,
             ytdQppTier2, rates.QppTier2MaxEmployee);
 
-        var ei = CapDeduction(
+        var ei = selfEmployed ? 0m : CapDeduction(
             EarningsInBand(ytdGrossEarnings, grossPay, 0, rates.EiMaxInsurableEarnings)
                 * rates.EiEmployeeRate,
             ytdEiPremiums, rates.EiMaxEmployeePremium);
@@ -45,7 +46,7 @@ public static class PayrollCalculator
 
         var annualGross = grossPay * periods;
 
-        // F5Q per period: QPP enhanced (1%) + Tier 2 — income deduction per T4127 Step 1 / TP-1015.F CSA
+        // F5Q: employee enhanced T1 (1%) + T2 — same for employed and incorporated owners
         var f5q = qppTier1 * (rates.QppAdditionalTier1Rate / rates.QppTier1Rate) + qppTier2;
 
         // Federal tax — T4127 formula for Quebec residents
@@ -62,13 +63,13 @@ public static class PayrollCalculator
             * (1 - rates.QuebecFederalAbatement) / periods;
 
         // Quebec tax — TP-1015.F Section 2.1.1 formula
-        // H per period: déduction pour travailleur; cap is floor(1 420 ÷ P) — whole-dollar truncation per TP-1015.F
+        // H = déduction pour travailleur; cap is QuebecWorkerDeductionMax ÷ P (no floor, per TP-1015.F)
         var hPerPeriod = Math.Min(grossPay * rates.QuebecWorkerDeductionRate,
-            Math.Floor(rates.QuebecWorkerDeductionMax / periods));
+            rates.QuebecWorkerDeductionMax / periods);
         var quebecTaxableIncome = Math.Max((grossPay - hPerPeriod - f5q) * periods, 0);
         // Quebec credit is personal amount only — QPP/EI/QPIP are not provincial credits (unlike federal K2Q)
         var quebecCredits = quebecClaimAmount * rates.QuebecLowestRate;
-        var quebecIncomeTax = Math.Max(ApplyBrackets(quebecTaxableIncome, rates.QuebecBrackets) - quebecCredits, 0) / periods;
+        var quebecIncomeTax = Math.Max(ApplyBracketsQc(quebecTaxableIncome, rates.QuebecBrackets) - quebecCredits, 0) / periods;
 
         return new PayrollDeductions
         {
@@ -81,7 +82,7 @@ public static class PayrollCalculator
             QuebecIncomeTax = Round(quebecIncomeTax),
             EmployerQppTier1 = Round(qppTier1),
             EmployerQppTier2 = Round(qppTier2),
-            EmployerEi = Round(Round(ei) * rates.EiEmployerMultiplier),
+            EmployerEi = selfEmployed ? 0m : Round(Round(ei) * rates.EiEmployerMultiplier),
             EmployerQpip = Round(Math.Min(qpipBase * rates.QpipEmployerRate, rates.QpipMaxEmployerPremium)),
             EmployerFssq = Round(grossPay * rates.FssqSmallEmployerRate),
         };
@@ -104,6 +105,24 @@ public static class PayrollCalculator
             lower = upper;
         }
         return tax;
+    }
+
+    // TP-1015.F Section 2 shortcut: Y = T×I − K, where K = floor(T×lower − exact_tax_at_lower)
+    // This matches the K constants in the official TP-1015.F bracket table exactly.
+    private static decimal ApplyBracketsQc(decimal income, (decimal UpperBound, decimal Rate)[] brackets)
+    {
+        decimal lower = 0, exactTaxAtLower = 0;
+        foreach (var (upper, rate) in brackets)
+        {
+            if (income <= upper)
+            {
+                var k = Math.Floor(rate * lower - exactTaxAtLower);
+                return Math.Max(rate * income - k, 0);
+            }
+            exactTaxAtLower += (upper - lower) * rate;
+            lower = upper;
+        }
+        return 0;
     }
 
     private static decimal Round(decimal value) => Math.Round(value, 2, MidpointRounding.AwayFromZero);
