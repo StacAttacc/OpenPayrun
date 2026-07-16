@@ -1,6 +1,7 @@
 using MediatR;
 using OpenPayrun.Application;
 using OpenPayrun.Application.Features.Payroll;
+using OpenPayrun.Application.Features.TaxRates;
 using OpenPayrun.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,21 @@ app.MapPost("/api/payruns", async (CreatePayRunCommand command, ISender sender) 
 {
     var result = await sender.Send(command);
     return Results.Created($"/api/payruns/{result.Id}", result);
+});
+
+app.MapGet("/api/tax-rates", async (ISender sender) =>
+    await sender.Send(new GetTaxRateSetsQuery()));
+
+app.MapPost("/api/tax-rates", async (TaxRateSetBody body, ISender sender) =>
+{
+    var result = await sender.Send(new CreateTaxRateSetCommand(body));
+    return Results.Created($"/api/tax-rates/{result.Id}", result);
+});
+
+app.MapPut("/api/tax-rates/{id:int}", async (int id, TaxRateSetBody body, ISender sender) =>
+{
+    try { return Results.Ok(await sender.Send(new UpdateTaxRateSetCommand(id, body))); }
+    catch (KeyNotFoundException e) { return Results.NotFound(new { e.Message }); }
 });
 
 app.Run();
