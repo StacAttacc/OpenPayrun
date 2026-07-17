@@ -54,10 +54,13 @@ public class CreatePayRunHandler(IAppDbContext db) : IRequestHandler<CreatePayRu
             .FirstOrDefaultAsync(ct)
             ?? throw new NotSupportedException($"No tax rates configured for {req.PeriodStart}.");
 
+        // Derive ytdQppTier1 from ytdGrossEarnings when caller doesn't supply it (assumes consistent salary)
+        var ytdQppTier1 = req.YtdQppTier1 > 0 ? req.YtdQppTier1 : DeriveYtdQppTier1(req, rates);
+
         var d = PayrollCalculator.Calculate(
             req.GrossPay, req.Frequency,
             ytdGrossEarnings: req.YtdGrossEarnings,
-            ytdQppTier1: req.YtdQppTier1,
+            ytdQppTier1: ytdQppTier1,
             ytdQppTier2: req.YtdQppTier2,
             ytdEiPremiums: req.YtdEiPremiums,
             ytdQpipPremiums: req.YtdQpipPremiums,
@@ -99,5 +102,15 @@ public class CreatePayRunHandler(IAppDbContext db) : IRequestHandler<CreatePayRu
             d.EmployerFssq,
             d.TotalEmployerContributions
         );
+    }
+
+    private static decimal DeriveYtdQppTier1(CreatePayRunCommand req, Domain.Entities.TaxRateSet rates)
+    {
+        if (req.GrossPay <= 0 || req.YtdGrossEarnings <= 0) return 0;
+        var priorPeriods = (int)Math.Round(req.YtdGrossEarnings / req.GrossPay);
+        var perPeriodExemption = rates.QppExemption / (int)req.Frequency;
+        // Round per-period amount to match how each period's T1 was actually deducted
+        var perPeriodT1 = Math.Round(Math.Max(req.GrossPay - perPeriodExemption, 0) * rates.QppTier1Rate, 2, MidpointRounding.AwayFromZero);
+        return Math.Min(priorPeriods * perPeriodT1, rates.QppTier1MaxEmployee);
     }
 }
