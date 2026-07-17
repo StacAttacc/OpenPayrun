@@ -378,4 +378,151 @@ public class PayrollCalculator2026Tests
             selfEmployed: true);
         Assert.Equal(r.GrossPay - r.TotalEmployeeDeductions, r.NetPay);
     }
+
+}
+
+// Ground truth: formula-derived (no Excel for 2026 regular employee)
+// Regular salaried employee (selfEmployed=false): $8,333 gross/month, monthly, Quebec resident
+// QPP/QPIP identical to self-employed; EI applies and generates a federal credit reducing federal tax
+public class PayrollCalculator2026RegularTests
+{
+    private const decimal Gross = 8_333m;
+    private const PayFrequency Monthly = PayFrequency.Monthly;
+
+    // ── EI ───────────────────────────────────────────────────────────────────
+    // Max insurable = $68,900 → insurable cap hit in Sep; premium cap $895.70 hit mid-Sep
+
+    [Theory]
+    [InlineData(0,      0.00,  108.33)] // Jan — full
+    [InlineData(58_331, 758.31, 108.33)] // Aug — still full (premium cap not yet hit)
+    [InlineData(66_664, 866.64,  29.06)] // Sep — partial: premium cap ($895.70) and insurable cap ($68,900) both bite
+    [InlineData(74_997, 895.70,   0.00)] // Oct — maxed
+    [InlineData(91_663, 895.70,   0.00)] // Dec — maxed
+    public void EiPremium(decimal ytdGross, decimal ytdEi, decimal expected)
+    {
+        var r = PayrollCalculator.Calculate(Gross, Monthly, TaxRateFixtures.Rates2026,
+            ytdGrossEarnings: ytdGross, ytdEiPremiums: ytdEi);
+        Assert.Equal(expected, r.EiPremium);
+    }
+
+    // ── Employer EI ──────────────────────────────────────────────────────────
+
+    [Theory]
+    [InlineData(0,      0.00,  151.66)] // Jan
+    [InlineData(66_664, 866.64,  40.68)] // Sep — partial
+    [InlineData(74_997, 895.70,   0.00)] // Oct — maxed
+    public void EmployerEi(decimal ytdGross, decimal ytdEi, decimal expected)
+    {
+        var r = PayrollCalculator.Calculate(Gross, Monthly, TaxRateFixtures.Rates2026,
+            ytdGrossEarnings: ytdGross, ytdEiPremiums: ytdEi);
+        Assert.Equal(expected, r.EmployerEi);
+    }
+
+    [Fact]
+    public void EmployerEiIs140PctOfEmployeeEi()
+    {
+        var r = PayrollCalculator.Calculate(Gross, Monthly, TaxRateFixtures.Rates2026);
+        Assert.Equal(Math.Round(r.EiPremium * 1.4m, 2, MidpointRounding.AwayFromZero), r.EmployerEi);
+    }
+
+    // ── Federal income tax ───────────────────────────────────────────────────
+    // Lower than self-employed because EI premiums generate a federal credit (K2 in T4127)
+    // Jan–Aug constant: EI annualises to max ($895.70 credit base) regardless of partial cap
+    // Sep: EI drops so annualised credit drops; QPP T1 also partially capped
+    // Oct+: EI = 0, QPP T1 = 0 → credits collapse further, tax rises
+
+    [Theory]
+    [InlineData(0,          0.00,   0.00,   0.00,   0.00,  923.43)] // Jan
+    [InlineData(58_331, 3_546.20,   0.00, 758.31, 250.81,  923.43)] // Aug
+    [InlineData(66_664, 4_052.80,   0.00, 866.64, 286.64,  928.21)] // Sep — QPP T1 partial + EI partial
+    [InlineData(74_997, 4_479.30,  15.88, 895.70, 322.47,  925.57)] // Oct — QPP T1 maxed, T2 active, EI maxed
+    [InlineData(83_330, 4_479.30, 349.20, 895.70, 358.30,  971.19)] // Nov — T2 fills cap
+    [InlineData(91_663, 4_479.30, 416.00, 895.70, 394.13,  982.63)] // Dec — all caps hit
+    public void FederalIncomeTax(decimal ytdGross, decimal ytdQpp1, decimal ytdQpp2, decimal ytdEi, decimal ytdQpip, decimal expected)
+    {
+        var r = PayrollCalculator.Calculate(Gross, Monthly, TaxRateFixtures.Rates2026,
+            ytdGrossEarnings: ytdGross, ytdQppTier1: ytdQpp1,
+            ytdQppTier2: ytdQpp2, ytdEiPremiums: ytdEi, ytdQpipPremiums: ytdQpip);
+        Assert.Equal(expected, r.FederalIncomeTax);
+    }
+
+    // ── Quebec income tax ────────────────────────────────────────────────────
+    // EI generates no Quebec credit (unlike federal), so values match self-employed exactly
+
+    [Theory]
+    [InlineData(0,          0.00,   0.00,   0.00,   0.00, 1_097.51)] // Jan
+    [InlineData(58_331, 3_546.20,   0.00, 758.31, 250.81, 1_097.51)] // Aug
+    [InlineData(66_664, 4_052.80,   0.00, 866.64, 286.64, 1_096.91)] // Sep
+    [InlineData(74_997, 4_479.30,  15.88, 895.70, 322.47, 1_049.46)] // Oct
+    [InlineData(83_330, 4_479.30, 349.20, 895.70, 358.30, 1_100.10)] // Nov
+    [InlineData(91_663, 4_479.30, 416.00, 895.70, 394.13, 1_112.79)] // Dec
+    public void QuebecIncomeTax(decimal ytdGross, decimal ytdQpp1, decimal ytdQpp2, decimal ytdEi, decimal ytdQpip, decimal expected)
+    {
+        var r = PayrollCalculator.Calculate(Gross, Monthly, TaxRateFixtures.Rates2026,
+            ytdGrossEarnings: ytdGross, ytdQppTier1: ytdQpp1,
+            ytdQppTier2: ytdQpp2, ytdEiPremiums: ytdEi, ytdQpipPremiums: ytdQpip);
+        Assert.Equal(expected, r.QuebecIncomeTax);
+    }
+
+    // ── Full month 1 breakdown ───────────────────────────────────────────────
+
+    [Fact]
+    public void Month1_FullBreakdown()
+    {
+        var r = PayrollCalculator.Calculate(Gross, Monthly, TaxRateFixtures.Rates2026);
+
+        Assert.Equal(  506.60m, r.QppTier1);
+        Assert.Equal(    0.00m, r.QppTier2);
+        Assert.Equal(  108.33m, r.EiPremium);
+        Assert.Equal(   35.83m, r.QpipPremium);
+        Assert.Equal(  923.43m, r.FederalIncomeTax);
+        Assert.Equal(1_097.51m, r.QuebecIncomeTax);
+        Assert.Equal(2_671.70m, r.TotalEmployeeDeductions);
+        Assert.Equal(5_661.30m, r.NetPay);
+        Assert.Equal(  506.60m, r.EmployerQppTier1);
+        Assert.Equal(  151.66m, r.EmployerEi);
+        Assert.Equal(   50.16m, r.EmployerQpip);
+        Assert.Equal(  137.49m, r.EmployerFssq);
+        Assert.Equal(  845.91m, r.TotalEmployerContributions);
+    }
+
+    // ── Full November breakdown (late year: T1 maxed, T2 filling, EI maxed) ──
+
+    [Fact]
+    public void November_FullBreakdown()
+    {
+        var r = PayrollCalculator.Calculate(Gross, Monthly, TaxRateFixtures.Rates2026,
+            ytdGrossEarnings: 83_330m, ytdQppTier1: 4_479.30m, ytdQppTier2: 349.20m,
+            ytdEiPremiums: 895.70m, ytdQpipPremiums: 358.30m);
+
+        Assert.Equal(    0.00m, r.QppTier1);
+        Assert.Equal(   66.80m, r.QppTier2);
+        Assert.Equal(    0.00m, r.EiPremium);
+        Assert.Equal(   35.83m, r.QpipPremium);
+        Assert.Equal(  971.19m, r.FederalIncomeTax);
+        Assert.Equal(1_100.10m, r.QuebecIncomeTax);
+        Assert.Equal(2_173.92m, r.TotalEmployeeDeductions);
+        Assert.Equal(6_159.08m, r.NetPay);
+        Assert.Equal(    0.00m, r.EmployerEi);
+        Assert.Equal(   50.16m, r.EmployerQpip);
+        Assert.Equal(  137.49m, r.EmployerFssq);
+        Assert.Equal(  254.45m, r.TotalEmployerContributions);
+    }
+
+    // ── Invariants ───────────────────────────────────────────────────────────
+
+    [Fact]
+    public void NetPay_EqualsGrossMinusTotalDeductions()
+    {
+        var r = PayrollCalculator.Calculate(Gross, Monthly, TaxRateFixtures.Rates2026);
+        Assert.Equal(r.GrossPay - r.TotalEmployeeDeductions, r.NetPay);
+    }
+
+    [Fact]
+    public void EmployerQppMatchesEmployee()
+    {
+        var r = PayrollCalculator.Calculate(Gross, Monthly, TaxRateFixtures.Rates2026);
+        Assert.Equal(r.QppTier1, r.EmployerQppTier1);
+        Assert.Equal(r.QppTier2, r.EmployerQppTier2);
+    }
 }

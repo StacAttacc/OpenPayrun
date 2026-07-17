@@ -29,6 +29,12 @@ app.MapPost("/api/payruns", async (CreatePayRunCommand command, ISender sender) 
     return Results.Created($"/api/payruns/{result.Id}", result);
 });
 
+app.MapPost("/api/pay-runs/calculate", async (CalculatePayRunQuery query, ISender sender) =>
+{
+    try { return Results.Ok(await sender.Send(query)); }
+    catch (NotSupportedException e) { return Results.BadRequest(new { e.Message }); }
+});
+
 app.MapGet("/api/tax-rates", async (ISender sender) =>
     await sender.Send(new GetTaxRateSetsQuery()));
 
