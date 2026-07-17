@@ -1,8 +1,10 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using OpenPayrun.Application;
 using OpenPayrun.Application.Features.Payroll;
 using OpenPayrun.Application.Features.TaxRates;
 using OpenPayrun.Infrastructure;
+using OpenPayrun.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,13 +23,10 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseCors("AllowedOrigins");
+using (var scope = app.Services.CreateScope())
+    await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
 
-app.MapPost("/api/payruns", async (CreatePayRunCommand command, ISender sender) =>
-{
-    var result = await sender.Send(command);
-    return Results.Created($"/api/payruns/{result.Id}", result);
-});
+app.UseCors("AllowedOrigins");
 
 app.MapPost("/api/pay-runs/calculate", async (CalculatePayRunQuery query, ISender sender) =>
 {
