@@ -60,6 +60,7 @@ export class TaxRates {
   }));
 
   rates = computed(() => this.taxRatesQuery.data() ?? []);
+  currentRateId = computed(() => this.rates()[0]?.id ?? null);
   pagedRates = computed(() => {
     const start = (this.page() - 1) * this.pageSize;
     return this.rates().slice(start, start + this.pageSize);

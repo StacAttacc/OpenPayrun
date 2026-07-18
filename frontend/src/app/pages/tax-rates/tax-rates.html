@@ -28,7 +28,7 @@
     <tbody>
       @for (r of pagedRates(); track r.id) {
         <tr>
-          <td>{{ r.effectiveFrom | date:'yyyy' }}{{ r.effectiveTo ? '' : ' →' }}</td>
+          <td>{{ r.effectiveFrom | date:'yyyy' }}{{ r.id === currentRateId() ? ' →' : '' }}</td>
           <td>{{ r.qppYmpe | number:'1.0-0' }}</td>
           <td>{{ r.qppYampe | number:'1.0-0' }}</td>
           <td>{{ r.qppTier1Rate | percent:'1.2-2' }}</td>
