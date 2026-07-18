@@ -8,6 +8,7 @@ const FADE_OVERLAY_V = '3rem';
 export class ScrollFadeDirective implements OnInit, OnDestroy {
   @Input() scrollFadeSkipUp = false;
   @Input() scrollFadeBottomColor = '';
+  @Input() scrollFadeBottomOffset = '0px';
 
   private el: HTMLElement;
   private ro!: ResizeObserver;
@@ -41,7 +42,7 @@ export class ScrollFadeDirective implements OnInit, OnDestroy {
         background: `linear-gradient(to left, ${this.scrollFadeBottomColor}, transparent)`,
       });
       Object.assign(this.bottomOverlay.style, {
-        left: '0', right: '0', bottom: '0',
+        left: '0', right: '0', bottom: this.scrollFadeBottomOffset,
         height: FADE_OVERLAY_V,
         background: `linear-gradient(to bottom, transparent, ${this.scrollFadeBottomColor} 60%)`,
       });

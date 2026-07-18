@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectorRef, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, DatePipe, PercentPipe, CurrencyPipe } from '@angular/common';
@@ -22,6 +22,17 @@ export class TaxRates implements OnInit {
   protected t = inject(I18nService).t;
 
   rates = signal<TaxRateSet[]>([]);
+  page = signal(1);
+  readonly pageSize = 14;
+  pagedRates = computed(() => {
+    const start = (this.page() - 1) * this.pageSize;
+    return this.rates().slice(start, start + this.pageSize);
+  });
+  totalPages = computed(() => Math.max(1, Math.ceil(this.rates().length / this.pageSize)));
+
+  prevPage() { if (this.page() > 1) this.page.update(p => p - 1); }
+  nextPage() { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
+
   showModal = signal(false);
   submitting = signal(false);
   editingId = signal<number | null>(null);
@@ -42,9 +53,10 @@ export class TaxRates implements OnInit {
   ngOnInit() { this.load(); }
 
   load() {
-    this.http.get<TaxRateSet[]>('/api/tax-rates').subscribe(data =>
-      this.rates.set([...data].sort((a, b) => b.effectiveFrom.localeCompare(a.effectiveFrom)))
-    );
+    this.http.get<TaxRateSet[]>('/api/tax-rates').subscribe(data => {
+      this.rates.set([...data].sort((a, b) => b.effectiveFrom.localeCompare(a.effectiveFrom)));
+      this.page.set(1);
+    });
   }
 
   openAdd() {

@@ -8,7 +8,8 @@
 @if (rates().length > 0) {
   <div class="table-wrapper">
   <div class="table-scroll" scrollFade [scrollFadeSkipUp]="true"
-       scrollFadeBottomColor="var(--color-base-100)">
+       scrollFadeBottomColor="var(--color-base-100)"
+       scrollFadeBottomOffset="2.5rem">
   <table class="w-auto min-w-full">
     <thead>
       <tr>
@@ -23,7 +24,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (r of rates(); track r.id) {
+      @for (r of pagedRates(); track r.id) {
         <tr>
           <td>{{ r.effectiveFrom | date:'yyyy' }}{{ r.effectiveTo ? '' : ' →' }}</td>
           <td>{{ r.qppYmpe | number:'1.0-0' }}</td>
@@ -38,6 +39,13 @@
     </tbody>
   </table>
   </div>
+  @if (totalPages() > 1) {
+    <div class="table-pagination">
+      <button (click)="prevPage()" [disabled]="page() === 1">&lt;</button>
+      <span>{{ page() }} of {{ totalPages() }}</span>
+      <button (click)="nextPage()" [disabled]="page() === totalPages()">&gt;</button>
+    </div>
+  }
   </div>
 
 } @else {
