@@ -5,6 +5,11 @@
   gap: 0;
 }
 
+@media (min-width: 768px) {
+  :host { height: auto; }
+  .table-wrapper { flex: none; max-height: calc(100dvh - 11rem); }
+}
+
 :host ::ng-deep .app-modal { width: min(560px, 100vw - 1.5rem); }
 
 .table-wrapper {
