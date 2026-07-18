@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://openpayrun.tail789d60.ts.net/api/:path*" },
+    { "source": "/api/:path*", "destination": "https://openpayrun-api.tail789d60.ts.net/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
