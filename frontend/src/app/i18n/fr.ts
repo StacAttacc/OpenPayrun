@@ -42,6 +42,8 @@ export const FR: Translations = {
       cancel: 'Annuler',
       save: 'Enregistrer',
       saving: 'Enregistrement…',
+      saveError: "Échec de l'enregistrement. Veuillez réessayer.",
+      deleteError: 'Échec de la suppression. Veuillez réessayer.',
       period: {
         section: "Période d'application",
         from: 'Du',
@@ -106,6 +108,7 @@ export const FR: Translations = {
     selfEmployed: 'Travailleur autonome / incorporé (sans AE)',
     calculate: 'Calculer',
     calculating: 'Calcul en cours…',
+    calcError: 'Échec du calcul. Veuillez réessayer.',
     results: {
       grossPay: 'Salaire brut',
       employeeDeductions: 'Déductions employé',

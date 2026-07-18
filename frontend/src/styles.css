@@ -32,6 +32,7 @@ th { background: var(--color-base-200); font-weight: 600; }
 td:first-child, th:first-child { text-align: left; }
 .empty { color: var(--color-base-content); opacity: 0.5; margin-top: 2rem; }
 .empty.error { opacity: 1; color: var(--color-error, #b91c1c); }
+.modal-error { font-size: 0.875rem; color: var(--color-error, #b91c1c); margin: 0; }
 
 /* Modal form content — global because ng-content is scoped to the parent, not the modal component */
 .app-modal label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.9rem; font-weight: 500; color: var(--color-base-content); }

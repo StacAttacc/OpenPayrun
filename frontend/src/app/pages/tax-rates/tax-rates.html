@@ -151,6 +151,10 @@
     <button class="btn-add" (click)="addQuebecBracket()">{{ t().taxRates.modal.quebec.addBracket }}</button>
   </div>
 
+  @if (modalError()) {
+    <p class="modal-error">{{ modalError() }}</p>
+  }
+
   <div class="modal-actions">
     @if (editingId() !== null) {
       <button [class]="(confirmingDelete() ? 'btn-danger-outline' : 'btn-danger') + ' modal-btn-grow'"
@@ -190,6 +194,10 @@
       {{ calculating() ? t().calc.calculating : t().calc.calculate }}
     </button>
   </div>
+
+  @if (calcError()) {
+    <p class="modal-error">{{ calcError() }}</p>
+  }
 
   @if (calcResult(); as r) {
     <div class="calc-results">

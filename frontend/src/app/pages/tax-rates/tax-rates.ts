@@ -39,10 +39,12 @@ export class TaxRates {
   showModal = signal(false);
   editingId = signal<number | null>(null);
   confirmingDelete = signal(false);
+  modalError = signal<string | null>(null);
   draft: TaxRateSetBody = emptyDraft();
 
   showCalcModal = signal(false);
   calcResult = signal<CalcResult | null>(null);
+  calcError = signal<string | null>(null);
   calc = {
     period: new Date().toISOString().slice(0, 7),
     grossPay: 0,
@@ -79,6 +81,7 @@ export class TaxRates {
       this.queryClient.invalidateQueries({ queryKey: ['tax-rates'] });
       this.close();
     },
+    onError: () => this.modalError.set(this.t().taxRates.modal.saveError),
   }));
 
   deleteMutation = injectMutation(() => ({
@@ -87,12 +90,14 @@ export class TaxRates {
       this.queryClient.invalidateQueries({ queryKey: ['tax-rates'] });
       this.close();
     },
+    onError: () => this.modalError.set(this.t().taxRates.modal.deleteError),
   }));
 
   calcMutation = injectMutation(() => ({
     mutationFn: (payload: CalcPayload) =>
       firstValueFrom(this.http.post<CalcResult>('/api/pay-runs/calculate', payload)),
-    onSuccess: result => this.calcResult.set(result),
+    onSuccess: result => { this.calcResult.set(result); this.calcError.set(null); },
+    onError: () => this.calcError.set(this.t().calc.calcError),
   }));
 
   submitting = computed(() => this.saveMutation.isPending() || this.deleteMutation.isPending());
@@ -117,7 +122,7 @@ export class TaxRates {
     this.showModal.set(true);
   }
 
-  close() { this.showModal.set(false); this.confirmingDelete.set(false); }
+  close() { this.showModal.set(false); this.confirmingDelete.set(false); this.modalError.set(null); }
 
   save() {
     const body = { ...this.draft, effectiveTo: this.draft.effectiveTo || null };
@@ -131,6 +136,7 @@ export class TaxRates {
 
   openCalc() {
     this.calcResult.set(null);
+    this.calcError.set(null);
     this.showCalcModal.set(true);
   }
 
