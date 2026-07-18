@@ -39,6 +39,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddHealthChecks();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -56,6 +57,8 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("AllowedOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHealthChecks("/healthz");
 
 app.MapPost("/api/auth/login", (LoginRequest req, IConfiguration config) =>
 {

@@ -3,13 +3,13 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "DevPassword123!"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
     ports:
       - "1433:1433"
     volumes:
       - mssql-data:/var/opt/mssql
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "DevPassword123!" -C -Q "SELECT 1"
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${MSSQL_SA_PASSWORD}" -C -Q "SELECT 1"
       interval: 5s
       timeout: 5s
       retries: 12
@@ -21,11 +21,11 @@ services:
       - "5038:5038"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Default: "Server=mssql,1433;Database=OpenPayrun;User Id=sa;Password=DevPassword123!;TrustServerCertificate=True;"
+      ConnectionStrings__Default: "Server=mssql,1433;Database=OpenPayrun;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
       AllowedOrigins__0: "http://localhost:4200"
-      Admin__Username: "admin"
-      Admin__Password: "changeme"
-      Jwt__Secret: "dev-secret-key-change-in-production!!"
+      Admin__Username: "${ADMIN_USERNAME}"
+      Admin__Password: "${ADMIN_PASSWORD}"
+      Jwt__Secret: "${JWT_SECRET}"
     depends_on:
       mssql:
         condition: service_healthy

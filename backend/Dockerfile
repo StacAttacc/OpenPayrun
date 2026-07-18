@@ -1,7 +1,11 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
 COPY . .
-RUN dotnet restore
-EXPOSE 5038
-ENV ASPNETCORE_URLS=http://+:5038
-CMD ["dotnet", "run", "--project", "src/OpenPayrun.Api", "--no-launch-profile"]
+RUN dotnet publish src/OpenPayrun.Api -c Release -o /publish --no-self-contained
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+COPY --from=build /publish .
+EXPOSE 8080
+ENV ASPNETCORE_HTTP_PORTS=8080
+ENTRYPOINT ["dotnet", "OpenPayrun.Api.dll"]
