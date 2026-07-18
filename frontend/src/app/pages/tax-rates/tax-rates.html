@@ -134,6 +134,13 @@
   </div>
 
   <div class="modal-actions">
+    @if (editingId() !== null) {
+      <button [class]="confirmingDelete() ? 'btn-danger-outline' : 'btn-danger'"
+              (click)="delete()" [disabled]="submitting()">
+        {{ confirmingDelete() ? 'Confirm delete' : 'Delete' }}
+      </button>
+    }
+    <div style="flex: 1"></div>
     <button (click)="close()">Cancel</button>
     <button class="btn-primary" (click)="save()" [disabled]="submitting()">
       {{ submitting() ? 'Saving…' : 'Save' }}

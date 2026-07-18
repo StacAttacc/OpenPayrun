@@ -92,6 +92,12 @@ app.MapPut("/api/tax-rates/{id:int}", async (int id, TaxRateSetBody body, ISende
     catch (KeyNotFoundException e) { return Results.NotFound(new { e.Message }); }
 }).RequireAuthorization();
 
+app.MapDelete("/api/tax-rates/{id:int}", async (int id, ISender sender) =>
+{
+    try { await sender.Send(new DeleteTaxRateSetCommand(id)); return Results.NoContent(); }
+    catch (KeyNotFoundException e) { return Results.NotFound(new { e.Message }); }
+}).RequireAuthorization();
+
 app.Run();
 
 record LoginRequest(string Username, string Password);

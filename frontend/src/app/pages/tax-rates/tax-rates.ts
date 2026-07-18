@@ -22,6 +22,7 @@ export class TaxRates implements OnInit {
   showModal = signal(false);
   submitting = signal(false);
   editingId = signal<number | null>(null);
+  confirmingDelete = signal(false);
 
   draft: TaxRateSetBody = emptyDraft();
 
@@ -62,7 +63,7 @@ export class TaxRates implements OnInit {
     this.showModal.set(true);
   }
 
-  close() { this.showModal.set(false); }
+  close() { this.showModal.set(false); this.confirmingDelete.set(false); }
 
   save() {
     const body = { ...this.draft, effectiveTo: this.draft.effectiveTo || null };
@@ -74,6 +75,16 @@ export class TaxRates implements OnInit {
     req.subscribe({
       next: () => { this.submitting.set(false); this.close(); this.load(); },
       error: () => { this.submitting.set(false); },
+    });
+  }
+
+  delete() {
+    if (!this.confirmingDelete()) { this.confirmingDelete.set(true); return; }
+    const id = this.editingId()!;
+    this.submitting.set(true);
+    this.http.delete(`/api/tax-rates/${id}`).subscribe({
+      next: () => { this.submitting.set(false); this.close(); this.load(); },
+      error: () => { this.submitting.set(false); this.confirmingDelete.set(false); },
     });
   }
 

@@ -131,6 +131,24 @@ public class UpdateTaxRateSetHandler(IAppDbContext db)
     }
 }
 
+// DELETE /api/tax-rates/{id}
+public record DeleteTaxRateSetCommand(int Id) : IRequest;
+
+public class DeleteTaxRateSetHandler(IAppDbContext db)
+    : IRequestHandler<DeleteTaxRateSetCommand>
+{
+    public async Task Handle(DeleteTaxRateSetCommand req, CancellationToken ct)
+    {
+        var entity = await db.TaxRateSets
+            .Include(r => r.Brackets)
+            .FirstOrDefaultAsync(r => r.Id == req.Id, ct)
+            ?? throw new KeyNotFoundException($"TaxRateSet {req.Id} not found.");
+
+        db.TaxRateSets.Remove(entity);
+        await db.SaveChangesAsync(ct);
+    }
+}
+
 // Shared helpers
 file static class Mapper
 {
