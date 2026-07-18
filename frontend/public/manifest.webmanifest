@@ -1,0 +1,17 @@
+{
+  "name": "OpenPayrun",
+  "short_name": "OpenPayrun",
+  "description": "Calculateur de paie québécois — RRQ, AE, RQAP",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a1a2e",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
