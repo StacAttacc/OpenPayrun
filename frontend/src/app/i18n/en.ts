@@ -21,6 +21,7 @@ export const EN = {
     calcBtn: 'Calculate',
     editBtn: 'Edit',
     empty: 'No tax rate sets found.',
+    loading: 'Loading…',
     table: {
       period: 'Period',
       ympe: 'YMPE',

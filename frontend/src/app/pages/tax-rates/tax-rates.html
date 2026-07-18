@@ -5,7 +5,9 @@
   <button class="btn-primary page-header-btn" (click)="openCalc()">{{ t().taxRates.calcBtn }}</button>
 </div>
 
-@if (rates().length > 0) {
+@if (taxRatesQuery.isLoading()) {
+  <p class="empty">{{ t().taxRates.loading }}</p>
+} @else if (rates().length > 0) {
   <div class="table-wrapper">
   <div class="table-scroll" scrollFade [scrollFadeSkipUp]="true"
        scrollFadeBottomColor="var(--color-base-100)"

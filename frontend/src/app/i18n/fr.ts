@@ -23,6 +23,7 @@ export const FR: Translations = {
     calcBtn: 'Calculer',
     editBtn: 'Modifier',
     empty: 'Aucun jeu de taux trouvé.',
+    loading: 'Chargement…',
     table: {
       period: 'Période',
       ympe: 'MGA',

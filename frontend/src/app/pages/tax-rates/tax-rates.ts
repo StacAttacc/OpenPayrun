@@ -1,13 +1,24 @@
-import { Component, computed, inject, signal, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, DatePipe, PercentPipe, CurrencyPipe } from '@angular/common';
+import { injectQuery, injectMutation, injectQueryClient } from '@tanstack/angular-query-experimental';
+import { firstValueFrom } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Modal } from '../../components/modal/modal';
-import { TaxRateSet, TaxRateSetBody, BracketDto } from '../../models/tax-rate.model';
+import { TaxRateSet, TaxRateSetBody } from '../../models/tax-rate.model';
 import { CalcResult } from '../../models/pay-run.model';
 import { AuthService } from '../../services/auth.service';
 import { I18nService } from '../../services/i18n.service';
 import { ScrollFadeDirective } from '../../directives/scroll-fade.directive';
+
+interface CalcPayload {
+  periodStart: string;
+  grossPay: number;
+  frequency: number;
+  selfEmployed: boolean;
+  ytdGrossEarnings: number;
+}
 
 @Component({
   selector: 'app-tax-rates',
@@ -15,15 +26,40 @@ import { ScrollFadeDirective } from '../../directives/scroll-fade.directive';
   templateUrl: './tax-rates.html',
   styleUrl: './tax-rates.css',
 })
-export class TaxRates implements OnInit {
+export class TaxRates {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+  private queryClient = injectQueryClient();
   authService = inject(AuthService);
   protected t = inject(I18nService).t;
 
-  rates = signal<TaxRateSet[]>([]);
   page = signal(1);
   readonly pageSize = 14;
+
+  showModal = signal(false);
+  editingId = signal<number | null>(null);
+  confirmingDelete = signal(false);
+  draft: TaxRateSetBody = emptyDraft();
+
+  showCalcModal = signal(false);
+  calcResult = signal<CalcResult | null>(null);
+  calc = {
+    period: new Date().toISOString().slice(0, 7),
+    grossPay: 0,
+    ytdGrossEarnings: 0,
+    selfEmployed: false,
+  };
+
+  taxRatesQuery = injectQuery(() => ({
+    queryKey: ['tax-rates'],
+    queryFn: () => firstValueFrom(
+      this.http.get<TaxRateSet[]>('/api/tax-rates').pipe(
+        map(d => [...d].sort((a, b) => b.effectiveFrom.localeCompare(a.effectiveFrom)))
+      )
+    ),
+  }));
+
+  rates = computed(() => this.taxRatesQuery.data() ?? []);
   pagedRates = computed(() => {
     const start = (this.page() - 1) * this.pageSize;
     return this.rates().slice(start, start + this.pageSize);
@@ -33,31 +69,33 @@ export class TaxRates implements OnInit {
   prevPage() { if (this.page() > 1) this.page.update(p => p - 1); }
   nextPage() { if (this.page() < this.totalPages()) this.page.update(p => p + 1); }
 
-  showModal = signal(false);
-  submitting = signal(false);
-  editingId = signal<number | null>(null);
-  confirmingDelete = signal(false);
+  saveMutation = injectMutation(() => ({
+    mutationFn: ({ id, body }: { id: number | null; body: TaxRateSetBody }) =>
+      id
+        ? firstValueFrom(this.http.put<TaxRateSet>(`/api/tax-rates/${id}`, body))
+        : firstValueFrom(this.http.post<TaxRateSet>('/api/tax-rates', body)),
+    onSuccess: () => {
+      this.queryClient.invalidateQueries({ queryKey: ['tax-rates'] });
+      this.close();
+    },
+  }));
 
-  draft: TaxRateSetBody = emptyDraft();
+  deleteMutation = injectMutation(() => ({
+    mutationFn: (id: number) => firstValueFrom(this.http.delete(`/api/tax-rates/${id}`)),
+    onSuccess: () => {
+      this.queryClient.invalidateQueries({ queryKey: ['tax-rates'] });
+      this.close();
+    },
+  }));
 
-  showCalcModal = signal(false);
-  calculating = signal(false);
-  calcResult = signal<CalcResult | null>(null);
-  calc = {
-    period: new Date().toISOString().slice(0, 7),
-    grossPay: 0,
-    ytdGrossEarnings: 0,
-    selfEmployed: false,
-  };
+  calcMutation = injectMutation(() => ({
+    mutationFn: (payload: CalcPayload) =>
+      firstValueFrom(this.http.post<CalcResult>('/api/pay-runs/calculate', payload)),
+    onSuccess: result => this.calcResult.set(result),
+  }));
 
-  ngOnInit() { this.load(); }
-
-  load() {
-    this.http.get<TaxRateSet[]>('/api/tax-rates').subscribe(data => {
-      this.rates.set([...data].sort((a, b) => b.effectiveFrom.localeCompare(a.effectiveFrom)));
-      this.page.set(1);
-    });
-  }
+  submitting = computed(() => this.saveMutation.isPending() || this.deleteMutation.isPending());
+  calculating = computed(() => this.calcMutation.isPending());
 
   openAdd() {
     const latest = this.rates()[0];
@@ -82,25 +120,12 @@ export class TaxRates implements OnInit {
 
   save() {
     const body = { ...this.draft, effectiveTo: this.draft.effectiveTo || null };
-    this.submitting.set(true);
-    const id = this.editingId();
-    const req = id
-      ? this.http.put<TaxRateSet>(`/api/tax-rates/${id}`, body)
-      : this.http.post<TaxRateSet>('/api/tax-rates', body);
-    req.subscribe({
-      next: () => { this.submitting.set(false); this.close(); this.load(); },
-      error: () => { this.submitting.set(false); },
-    });
+    this.saveMutation.mutate({ id: this.editingId(), body });
   }
 
   delete() {
     if (!this.confirmingDelete()) { this.confirmingDelete.set(true); return; }
-    const id = this.editingId()!;
-    this.submitting.set(true);
-    this.http.delete(`/api/tax-rates/${id}`).subscribe({
-      next: () => { this.submitting.set(false); this.close(); this.load(); },
-      error: () => { this.submitting.set(false); this.confirmingDelete.set(false); },
-    });
+    this.deleteMutation.mutate(this.editingId()!);
   }
 
   openCalc() {
@@ -111,24 +136,20 @@ export class TaxRates implements OnInit {
   closeCalc() { this.showCalcModal.set(false); }
 
   calculate() {
-    this.calculating.set(true);
     const periodStart = this.calc.period + '-01';
-    this.http.post<CalcResult>('/api/pay-runs/calculate', {
+    this.calcMutation.mutate({
       periodStart,
       grossPay: this.calc.grossPay,
       frequency: this.deriveFrequency(),
       selfEmployed: this.calc.selfEmployed,
       ytdGrossEarnings: this.calc.ytdGrossEarnings,
-    }).subscribe({
-      next: result => { this.calcResult.set(result); this.calculating.set(false); },
-      error: () => { this.calculating.set(false); },
     });
   }
 
   private deriveFrequency(): number {
     const { grossPay, ytdGrossEarnings, period } = this.calc;
     const month = parseInt(period.split('-')[1], 10);
-    if (!grossPay || !ytdGrossEarnings) return month === 1 ? 12 : 12;
+    if (!grossPay || !ytdGrossEarnings) return 12;
     const priorPeriods = Math.round(ytdGrossEarnings / grossPay);
     const impliedFrequency = (priorPeriods + 1) / (month / 12);
     const valid = [12, 24, 26, 52];
