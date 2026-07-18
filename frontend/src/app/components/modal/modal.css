@@ -1,7 +1,9 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,25 +14,32 @@
   background: var(--color-base-100);
   border: 1px solid var(--color-base-300);
   border-radius: 12px;
-  padding: 1.25rem;
   width: min(420px, 100vw - 1.5rem);
   max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-scroll {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  scrollbar-width: none;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 1.25rem;
 }
+.modal-scroll::-webkit-scrollbar { display: none; }
 
 @media (max-width: 479px) {
-  .app-modal {
-    max-height: 80dvh;
-  }
+  .app-modal { max-height: 80dvh; }
 }
 
 @media (min-width: 480px) {
-  .app-modal {
-    padding: 2rem;
-  }
+  .modal-scroll { padding: 2rem; }
 }
 
 .app-modal h2 { margin: 0; }
