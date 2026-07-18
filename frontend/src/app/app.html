@@ -40,7 +40,7 @@
       <router-outlet />
     </main>
 
-    <nav class="dock dock-sm md:hidden z-30">
+    <nav class="dock dock-sm md:hidden z-30" style="padding-bottom: env(safe-area-inset-bottom)">
       <a routerLink="/" routerLinkActive="dock-active" [routerLinkActiveOptions]="{ exact: true }">
         <svg lucideFileText class="h-5 w-5" />
         <span class="dock-label">{{ t().nav.taxRates }}</span>
