@@ -1,5 +1,7 @@
 <div class="page-header">
-  <button class="btn-primary" (click)="openAdd()">Add Rate Set</button>
+  @if (authService.isAdmin()) {
+    <button class="btn-primary" (click)="openAdd()">Add Rate Set</button>
+  }
   <button class="btn-primary" (click)="openCalc()">Calculate</button>
 </div>
 
@@ -14,7 +16,7 @@
         <th>QPP T2</th>
         <th>EI (QC)</th>
         <th>QPIP</th>
-        <th></th>
+        @if (authService.isAdmin()) { <th></th> }
       </tr>
     </thead>
     <tbody>
@@ -27,7 +29,7 @@
           <td>{{ r.qppTier2Rate | percent:'1.2-2' }}</td>
           <td>{{ r.eiEmployeeRate | percent:'1.2-2' }}</td>
           <td>{{ r.qpipEmployeeRate | percent:'1.3-3' }}</td>
-          <td><button (click)="openEdit(r)">Edit</button></td>
+          @if (authService.isAdmin()) { <td><button (click)="openEdit(r)">Edit</button></td> }
         </tr>
       }
     </tbody>

@@ -5,6 +5,7 @@ import { DecimalPipe, DatePipe, PercentPipe, CurrencyPipe } from '@angular/commo
 import { Modal } from '../../components/modal/modal';
 import { TaxRateSet, TaxRateSetBody, BracketDto } from '../../models/tax-rate.model';
 import { CalcResult } from '../../models/pay-run.model';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-tax-rates',
@@ -15,6 +16,7 @@ import { CalcResult } from '../../models/pay-run.model';
 export class TaxRates implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+  authService = inject(AuthService);
 
   rates = signal<TaxRateSet[]>([]);
   showModal = signal(false);

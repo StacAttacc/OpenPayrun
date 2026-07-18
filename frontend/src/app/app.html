@@ -7,7 +7,18 @@
       <label for="nav-drawer" class="btn btn-ghost btn-square hidden md:flex drawer-button" aria-label="Open menu">
         <svg lucideMenu class="h-5 w-5" />
       </label>
-      <span class="text-lg font-bold px-2">OpenPayrun</span>
+      <span class="text-lg font-bold px-2 flex-1">OpenPayrun</span>
+      @if (auth.isAdmin()) {
+        <button class="btn btn-ghost btn-sm gap-1" (click)="logout()">
+          <svg lucideLogOut class="h-4 w-4" />
+          Logout
+        </button>
+      } @else {
+        <button class="btn btn-ghost btn-sm gap-1" (click)="openLogin()">
+          <svg lucideLogIn class="h-4 w-4" />
+          Login
+        </button>
+      }
     </header>
 
     <main class="flex-1 p-6 pb-24 md:pb-6">
@@ -39,3 +50,23 @@
   </div>
 
 </div>
+
+<app-modal title="Admin Login" [show]="showLoginModal()" (closed)="closeLogin()">
+  <div class="form-section">
+    <div class="form-grid">
+      <label>Username
+        <input type="text" [(ngModel)]="creds.username" autocomplete="username" />
+      </label>
+      <label>Password
+        <input type="password" [(ngModel)]="creds.password" autocomplete="current-password" (keydown.enter)="login()" />
+      </label>
+    </div>
+    @if (loginError()) {
+      <p class="login-error">Invalid credentials.</p>
+    }
+  </div>
+  <div class="modal-actions">
+    <button (click)="closeLogin()">Cancel</button>
+    <button class="btn-primary" (click)="login()">Login</button>
+  </div>
+</app-modal>

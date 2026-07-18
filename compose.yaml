@@ -23,6 +23,9 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__Default: "Server=mssql,1433;Database=OpenPayrun;User Id=sa;Password=DevPassword123!;TrustServerCertificate=True;"
       AllowedOrigins__0: "http://localhost:4200"
+      Admin__Username: "admin"
+      Admin__Password: "changeme"
+      Jwt__Secret: "dev-secret-key-change-in-production!!"
     depends_on:
       mssql:
         condition: service_healthy
