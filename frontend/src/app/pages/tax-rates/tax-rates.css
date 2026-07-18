@@ -1,4 +1,33 @@
-:host ::ng-deep .app-modal { width: 480px; }
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0;
+}
+
+:host ::ng-deep .app-modal { width: min(560px, 100vw - 1.5rem); }
+
+.table-wrapper {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border: 2px solid var(--color-base-300);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-base-100);
+  margin-bottom: 1.5rem;
+}
+
+.table-scroll {
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.table-scroll::-webkit-scrollbar { display: none; }
+
+.table-scroll tbody tr:nth-child(odd)  { background: color-mix(in oklab, var(--color-base-200) 50%, transparent); }
+.table-scroll tbody tr:nth-child(even) { background: var(--color-base-100); }
 
 .bracket-table { width: 100%; border-collapse: collapse; margin-top: 0.25rem; }
 .bracket-table th { font-size: 0.8rem; font-weight: 500; text-align: left; padding: 0.25rem 0.5rem; background: #f9f9f9; border-bottom: 1px solid #e0e0e0; }

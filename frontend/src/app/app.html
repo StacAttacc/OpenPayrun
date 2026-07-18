@@ -1,7 +1,7 @@
 <div class="drawer">
   <input id="nav-drawer" type="checkbox" class="drawer-toggle" />
 
-  <div class="drawer-content flex flex-col min-h-screen bg-base-300 overflow-x-hidden">
+  <div class="drawer-content flex flex-col h-dvh bg-base-300 overflow-hidden">
 
     <header class="navbar bg-base-200 border-b border-base-300 sticky top-0 z-30">
       <label for="nav-drawer" class="btn btn-ghost btn-square hidden md:flex drawer-button" [attr.aria-label]="t().nav.openMenu">
@@ -28,7 +28,7 @@
       }
     </header>
 
-    <main class="flex-1 p-6 pb-24 md:pb-6">
+    <main class="flex-1 p-6 pb-24 md:pb-6 overflow-hidden">
       <router-outlet />
     </main>
 
@@ -73,7 +73,6 @@
     }
   </div>
   <div class="modal-actions">
-    <button (click)="closeLogin()">{{ t().auth.cancel }}</button>
-    <button class="btn-primary" (click)="login()">{{ t().auth.submit }}</button>
+    <button class="btn-primary modal-btn-grow" (click)="login()">{{ t().auth.submit }}</button>
   </div>
 </app-modal>

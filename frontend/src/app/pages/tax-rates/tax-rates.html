@@ -1,13 +1,14 @@
-<div class="page-header">
+<div class="page-header" [class.page-header-solo]="!authService.isAdmin()">
   @if (authService.isAdmin()) {
-    <button class="btn-primary" (click)="openAdd()">{{ t().taxRates.addBtn }}</button>
+    <button class="btn-primary page-header-btn" (click)="openAdd()">{{ t().taxRates.addBtn }}</button>
   }
-  <button class="btn-primary" (click)="openCalc()">{{ t().taxRates.calcBtn }}</button>
+  <button class="btn-primary page-header-btn" (click)="openCalc()">{{ t().taxRates.calcBtn }}</button>
 </div>
 
 @if (rates().length > 0) {
-  <div class="w-full overflow-hidden">
-  <div class="overflow-x-auto" scrollFade>
+  <div class="table-wrapper">
+  <div class="table-scroll" scrollFade [scrollFadeSkipUp]="true"
+       scrollFadeBottomColor="var(--color-base-100)">
   <table class="w-auto min-w-full">
     <thead>
       <tr>
@@ -38,6 +39,7 @@
   </table>
   </div>
   </div>
+
 } @else {
   <p class="empty">{{ t().taxRates.empty }}</p>
 }
@@ -139,14 +141,12 @@
 
   <div class="modal-actions">
     @if (editingId() !== null) {
-      <button [class]="confirmingDelete() ? 'btn-danger-outline' : 'btn-danger'"
+      <button [class]="(confirmingDelete() ? 'btn-danger-outline' : 'btn-danger') + ' modal-btn-grow'"
               (click)="delete()" [disabled]="submitting()">
         {{ confirmingDelete() ? t().taxRates.modal.confirmDelete : t().taxRates.modal.delete }}
       </button>
     }
-    <div style="flex: 1"></div>
-    <button (click)="close()">{{ t().taxRates.modal.cancel }}</button>
-    <button class="btn-primary" (click)="save()" [disabled]="submitting()">
+    <button class="btn-primary modal-btn-grow" (click)="save()" [disabled]="submitting()">
       {{ submitting() ? t().taxRates.modal.saving : t().taxRates.modal.save }}
     </button>
   </div>
@@ -174,7 +174,7 @@
   </div>
 
   <div class="modal-actions" style="justify-content: flex-start; margin-top: 0;">
-    <button class="btn-primary" (click)="calculate()" [disabled]="calculating()">
+    <button class="btn-primary modal-btn-grow" (click)="calculate()" [disabled]="calculating()">
       {{ calculating() ? t().calc.calculating : t().calc.calculate }}
     </button>
   </div>
