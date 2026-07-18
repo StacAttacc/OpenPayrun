@@ -1,20 +1,22 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LucideFileText, LucideMenu, LucideLogIn, LucideLogOut } from '@lucide/angular';
+import { LucideFileText, LucideMenu, LucideLogIn, LucideLogOut, LucideSun, LucideMoon } from '@lucide/angular';
 import { Modal } from './components/modal/modal';
 import { AuthService } from './services/auth.service';
 import { I18nService } from './services/i18n.service';
+import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, LucideFileText, LucideMenu, LucideLogIn, LucideLogOut, Modal],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, LucideFileText, LucideMenu, LucideLogIn, LucideLogOut, LucideSun, LucideMoon, Modal],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
   auth = inject(AuthService);
   i18n = inject(I18nService);
+  theme = inject(ThemeService);
   protected t = this.i18n.t;
 
   showLoginModal = signal(false);
@@ -23,6 +25,7 @@ export class App {
 
   constructor() {
     effect(() => { document.documentElement.lang = this.i18n.lang(); });
+    effect(() => { document.documentElement.setAttribute('data-theme', this.theme.theme()); });
   }
 
   openLogin() {

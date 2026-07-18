@@ -21,6 +21,8 @@ export const EN = {
     calcBtn: 'Calculate',
     editBtn: 'Edit',
     empty: 'No tax rate sets found.',
+    loading: 'Loading…',
+    loadError: 'Failed to load tax rates. Please try again.',
     table: {
       period: 'Period',
       ympe: 'YMPE',
@@ -38,6 +40,8 @@ export const EN = {
       cancel: 'Cancel',
       save: 'Save',
       saving: 'Saving…',
+      saveError: 'Failed to save. Please try again.',
+      deleteError: 'Failed to delete. Please try again.',
       period: {
         section: 'Effective period',
         from: 'From',
@@ -102,6 +106,7 @@ export const EN = {
     selfEmployed: 'Self-employed / incorporated (no EI)',
     calculate: 'Calculate',
     calculating: 'Calculating…',
+    calcError: 'Calculation failed. Please try again.',
     results: {
       grossPay: 'Gross Pay',
       employeeDeductions: 'Employee Deductions',

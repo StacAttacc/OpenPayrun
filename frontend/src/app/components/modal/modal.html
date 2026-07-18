@@ -1,8 +1,10 @@
 @if (show()) {
   <div class="modal-backdrop" (click)="closed.emit()">
     <div class="app-modal" (click)="$event.stopPropagation()">
-      <h2>{{ title() }}</h2>
-      <ng-content />
+      <div class="modal-scroll" scrollFade [scrollFadeSkipUp]="true" scrollFadeBottomColor="color-mix(in oklab, var(--color-base-200) 50%, transparent)">
+        <h2>{{ title() }}</h2>
+        <ng-content />
+      </div>
     </div>
   </div>
 }

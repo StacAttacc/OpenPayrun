@@ -23,6 +23,8 @@ export const FR: Translations = {
     calcBtn: 'Calculer',
     editBtn: 'Modifier',
     empty: 'Aucun jeu de taux trouvé.',
+    loading: 'Chargement…',
+    loadError: 'Impossible de charger les taux. Veuillez réessayer.',
     table: {
       period: 'Période',
       ympe: 'MGA',
@@ -40,6 +42,8 @@ export const FR: Translations = {
       cancel: 'Annuler',
       save: 'Enregistrer',
       saving: 'Enregistrement…',
+      saveError: "Échec de l'enregistrement. Veuillez réessayer.",
+      deleteError: 'Échec de la suppression. Veuillez réessayer.',
       period: {
         section: "Période d'application",
         from: 'Du',
@@ -104,6 +108,7 @@ export const FR: Translations = {
     selfEmployed: 'Travailleur autonome / incorporé (sans AE)',
     calculate: 'Calculer',
     calculating: 'Calcul en cours…',
+    calcError: 'Échec du calcul. Veuillez réessayer.',
     results: {
       grossPay: 'Salaire brut',
       employeeDeductions: 'Déductions employé',
