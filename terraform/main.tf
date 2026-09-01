@@ -45,6 +45,12 @@ resource "azurerm_container_app_environment" "main" {
   location                   = azurerm_resource_group.main.location
   log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
   tags                       = var.tags
+
+  # Azure attaches a default Consumption workload_profile that isn't in
+  # this config; without this it shows as perpetual drift on every plan.
+  lifecycle {
+    ignore_changes = [workload_profile]
+  }
 }
 
 resource "azurerm_mssql_server" "main" {
@@ -79,6 +85,10 @@ resource "azurerm_container_app" "backend" {
   container_app_environment_id = azurerm_container_app_environment.main.id
   revision_mode                = "Single"
   tags                         = var.tags
+
+  lifecycle {
+    ignore_changes = [workload_profile_name]
+  }
 
   secret {
     name  = "sql-connection-string"
@@ -152,6 +162,10 @@ resource "azurerm_container_app" "frontend" {
   container_app_environment_id = azurerm_container_app_environment.main.id
   revision_mode                = "Single"
   tags                         = var.tags
+
+  lifecycle {
+    ignore_changes = [workload_profile_name]
+  }
 
   ingress {
     external_enabled = true
