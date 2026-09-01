@@ -15,11 +15,9 @@ provider "azurerm" {
 }
 
 locals {
-  backend_app_name  = "scsi-tax-calculator-backend"
-  frontend_app_name = "scsi-tax-calculator-frontend"
+  app_name = "scsi-tax-calculator"
 
-  backend_internal_url = "https://${local.backend_app_name}.internal.${azurerm_container_app_environment.main.default_domain}"
-  frontend_url         = "https://${local.frontend_app_name}.${azurerm_container_app_environment.main.default_domain}"
+  app_url = "https://${local.app_name}.${azurerm_container_app_environment.main.default_domain}"
 
   sql_connection_string = "Server=tcp:${azurerm_mssql_server.main.fully_qualified_domain_name},1433;Database=${azurerm_mssql_database.main.name};User Id=${var.sql_admin_username};Password=${var.sql_admin_password};Encrypt=True;TrustServerCertificate=False;"
 }
@@ -79,8 +77,8 @@ resource "azurerm_mssql_firewall_rule" "allow_azure_services" {
   end_ip_address   = "0.0.0.0"
 }
 
-resource "azurerm_container_app" "backend" {
-  name                         = local.backend_app_name
+resource "azurerm_container_app" "app" {
+  name                         = local.app_name
   resource_group_name          = azurerm_resource_group.main.name
   container_app_environment_id = azurerm_container_app_environment.main.id
   revision_mode                = "Single"
@@ -103,9 +101,12 @@ resource "azurerm_container_app" "backend" {
     value = var.jwt_secret
   }
 
+  # nginx (frontend) is the only externally reachable container; it proxies
+  # /api to the backend over localhost since both containers share the same
+  # network namespace within this app.
   ingress {
-    external_enabled = false
-    target_port      = 8080
+    external_enabled = true
+    target_port      = 80
     transport        = "auto"
     traffic_weight {
       latest_revision = true
@@ -138,7 +139,7 @@ resource "azurerm_container_app" "backend" {
       }
       env {
         name  = "AllowedOrigins__0"
-        value = local.frontend_url
+        value = local.app_url
       }
       env {
         name  = "Admin__Username"
@@ -153,33 +154,6 @@ resource "azurerm_container_app" "backend" {
         secret_name = "jwt-secret"
       }
     }
-  }
-}
-
-resource "azurerm_container_app" "frontend" {
-  name                         = local.frontend_app_name
-  resource_group_name          = azurerm_resource_group.main.name
-  container_app_environment_id = azurerm_container_app_environment.main.id
-  revision_mode                = "Single"
-  tags                         = var.tags
-
-  lifecycle {
-    ignore_changes = [workload_profile_name]
-  }
-
-  ingress {
-    external_enabled = true
-    target_port      = 80
-    transport        = "auto"
-    traffic_weight {
-      latest_revision = true
-      percentage      = 100
-    }
-  }
-
-  template {
-    min_replicas = 1
-    max_replicas = 2
 
     container {
       name   = "frontend"
@@ -189,10 +163,8 @@ resource "azurerm_container_app" "frontend" {
 
       env {
         name  = "API_URL"
-        value = local.backend_internal_url
+        value = "http://localhost:8080"
       }
     }
   }
-
-  depends_on = [azurerm_container_app.backend]
 }
