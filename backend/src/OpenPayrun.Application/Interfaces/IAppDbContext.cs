@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using OpenPayrun.Domain.Entities;
+using ScsiTaxCalculator.Domain.Entities;
 
-namespace OpenPayrun.Application.Interfaces;
+namespace ScsiTaxCalculator.Application.Interfaces;
 
 public interface IAppDbContext
 {

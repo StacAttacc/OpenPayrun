@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using OpenPayrun.Application.Interfaces;
-using OpenPayrun.Domain.Entities;
+using ScsiTaxCalculator.Application.Interfaces;
+using ScsiTaxCalculator.Domain.Entities;
 
-namespace OpenPayrun.Infrastructure.Persistence;
+namespace ScsiTaxCalculator.Infrastructure.Persistence;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext
 {

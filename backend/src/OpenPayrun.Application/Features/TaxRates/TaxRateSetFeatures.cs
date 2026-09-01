@@ -1,10 +1,10 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using OpenPayrun.Application.Interfaces;
-using OpenPayrun.Domain.Entities;
-using OpenPayrun.Domain.Enums;
+using ScsiTaxCalculator.Application.Interfaces;
+using ScsiTaxCalculator.Domain.Entities;
+using ScsiTaxCalculator.Domain.Enums;
 
-namespace OpenPayrun.Application.Features.TaxRates;
+namespace ScsiTaxCalculator.Application.Features.TaxRates;
 
 public record BracketDto(decimal? UpperBound, decimal Rate);
 

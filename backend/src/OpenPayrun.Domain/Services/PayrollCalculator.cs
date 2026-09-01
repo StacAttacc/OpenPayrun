@@ -1,8 +1,8 @@
-using OpenPayrun.Domain.Constants;
-using OpenPayrun.Domain.Enums;
-using OpenPayrun.Domain.ValueObjects;
+using ScsiTaxCalculator.Domain.Constants;
+using ScsiTaxCalculator.Domain.Enums;
+using ScsiTaxCalculator.Domain.ValueObjects;
 
-namespace OpenPayrun.Domain.Services;
+namespace ScsiTaxCalculator.Domain.Services;
 
 public static class PayrollCalculator
 {

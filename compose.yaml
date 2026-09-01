@@ -21,7 +21,7 @@ services:
       - "5038:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Default: "Server=mssql,1433;Database=OpenPayrun;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
+      ConnectionStrings__Default: "Server=mssql,1433;Database=ScsiTaxCalculator;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
       AllowedOrigins__0: "http://localhost:4200"
       Admin__Username: "${ADMIN_USERNAME}"
       Admin__Password: "${ADMIN_PASSWORD}"

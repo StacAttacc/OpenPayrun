@@ -1,6 +1,6 @@
 {
-  "name": "OpenPayrun",
-  "short_name": "OpenPayrun",
+  "name": "SCSI Tax Calculator",
+  "short_name": "SCSI Calc",
   "description": "Calculateur de retenues à la source pour la paie québécoise — RRQ, AE, RQAP. Quebec payroll deductions calculator — QPP, EI, QPIP.",
   "start_url": "/",
   "display": "standalone",

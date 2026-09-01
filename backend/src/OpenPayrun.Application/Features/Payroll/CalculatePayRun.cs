@@ -1,10 +1,10 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using OpenPayrun.Application.Interfaces;
-using OpenPayrun.Domain.Enums;
-using OpenPayrun.Domain.Services;
+using ScsiTaxCalculator.Application.Interfaces;
+using ScsiTaxCalculator.Domain.Enums;
+using ScsiTaxCalculator.Domain.Services;
 
-namespace OpenPayrun.Application.Features.Payroll;
+namespace ScsiTaxCalculator.Application.Features.Payroll;
 
 public record CalculatePayRunQuery(
     DateOnly PeriodStart,
@@ -72,7 +72,7 @@ public class CalculatePayRunHandler(IAppDbContext db) : IRequestHandler<Calculat
         );
     }
 
-    private static decimal DeriveYtdQppTier1(CalculatePayRunQuery req, Domain.Entities.TaxRateSet rates)
+    private static decimal DeriveYtdQppTier1(CalculatePayRunQuery req, ScsiTaxCalculator.Domain.Entities.TaxRateSet rates)
     {
         if (req.GrossPay <= 0 || req.YtdGrossEarnings <= 0) return 0;
         var priorPeriods = (int)Math.Round(req.YtdGrossEarnings / req.GrossPay);

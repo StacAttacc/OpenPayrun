@@ -5,11 +5,11 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using OpenPayrun.Application;
-using OpenPayrun.Application.Features.Payroll;
-using OpenPayrun.Application.Features.TaxRates;
-using OpenPayrun.Infrastructure;
-using OpenPayrun.Infrastructure.Persistence;
+using ScsiTaxCalculator.Application;
+using ScsiTaxCalculator.Application.Features.Payroll;
+using ScsiTaxCalculator.Application.Features.TaxRates;
+using ScsiTaxCalculator.Infrastructure;
+using ScsiTaxCalculator.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 

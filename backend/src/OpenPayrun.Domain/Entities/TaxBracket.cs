@@ -1,6 +1,6 @@
-using OpenPayrun.Domain.Enums;
+using ScsiTaxCalculator.Domain.Enums;
 
-namespace OpenPayrun.Domain.Entities;
+namespace ScsiTaxCalculator.Domain.Entities;
 
 public class TaxBracket
 {

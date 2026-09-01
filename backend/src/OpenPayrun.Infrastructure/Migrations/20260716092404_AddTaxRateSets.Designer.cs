@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using OpenPayrun.Infrastructure.Persistence;
+using ScsiTaxCalculator.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace OpenPayrun.Infrastructure.Migrations
+namespace ScsiTaxCalculator.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20260716092404_AddTaxRateSets")]
@@ -25,7 +25,7 @@ namespace OpenPayrun.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("OpenPayrun.Domain.Entities.Employee", b =>
+            modelBuilder.Entity("ScsiTaxCalculator.Domain.Entities.Employee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -53,7 +53,7 @@ namespace OpenPayrun.Infrastructure.Migrations
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("OpenPayrun.Domain.Entities.PayRun", b =>
+            modelBuilder.Entity("ScsiTaxCalculator.Domain.Entities.PayRun", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -93,7 +93,7 @@ namespace OpenPayrun.Infrastructure.Migrations
                     b.ToTable("PayRuns");
                 });
 
-            modelBuilder.Entity("OpenPayrun.Domain.Entities.TaxBracket", b =>
+            modelBuilder.Entity("ScsiTaxCalculator.Domain.Entities.TaxBracket", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -125,7 +125,7 @@ namespace OpenPayrun.Infrastructure.Migrations
                     b.ToTable("TaxBracket");
                 });
 
-            modelBuilder.Entity("OpenPayrun.Domain.Entities.TaxRateSet", b =>
+            modelBuilder.Entity("ScsiTaxCalculator.Domain.Entities.TaxRateSet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -258,9 +258,9 @@ namespace OpenPayrun.Infrastructure.Migrations
                     b.ToTable("TaxRateSets");
                 });
 
-            modelBuilder.Entity("OpenPayrun.Domain.Entities.PayRun", b =>
+            modelBuilder.Entity("ScsiTaxCalculator.Domain.Entities.PayRun", b =>
                 {
-                    b.HasOne("OpenPayrun.Domain.Entities.Employee", "Employee")
+                    b.HasOne("ScsiTaxCalculator.Domain.Entities.Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -269,9 +269,9 @@ namespace OpenPayrun.Infrastructure.Migrations
                     b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("OpenPayrun.Domain.Entities.TaxBracket", b =>
+            modelBuilder.Entity("ScsiTaxCalculator.Domain.Entities.TaxBracket", b =>
                 {
-                    b.HasOne("OpenPayrun.Domain.Entities.TaxRateSet", "TaxRateSet")
+                    b.HasOne("ScsiTaxCalculator.Domain.Entities.TaxRateSet", "TaxRateSet")
                         .WithMany("Brackets")
                         .HasForeignKey("TaxRateSetId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -280,7 +280,7 @@ namespace OpenPayrun.Infrastructure.Migrations
                     b.Navigation("TaxRateSet");
                 });
 
-            modelBuilder.Entity("OpenPayrun.Domain.Entities.TaxRateSet", b =>
+            modelBuilder.Entity("ScsiTaxCalculator.Domain.Entities.TaxRateSet", b =>
                 {
                     b.Navigation("Brackets");
                 });

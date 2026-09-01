@@ -1,8 +1,8 @@
-> 🇬🇧 [English version below](#openpayrun-1)
+> 🇬🇧 [English version below](#scsi-tax-calculator-1)
 
 ---
 
-# OpenPayrun
+# SCSI Tax Calculator
 
 Calculateur de retenues à la source pour la paie québécoise — RRQ, AE, RQAP, impôt fédéral et provincial.
 
@@ -10,7 +10,7 @@ Disponible en français et en anglais. Gratuit.
 
 ## Ce que ça calcule
 
-À partir d'un salaire brut et d'une période de paie, OpenPayrun calcule :
+À partir d'un salaire brut et d'une période de paie, SCSI Tax Calculator calcule :
 
 **Déductions employé**
 - RRQ (palier 1 & 2)
@@ -71,7 +71,7 @@ MIT License © 2026 StacAttacc
 
 ---
 
-# OpenPayrun
+# SCSI Tax Calculator
 
 Quebec payroll deductions calculator — QPP/RRQ, EI/AE, QPIP/RQAP, federal and provincial income tax.
 
@@ -79,7 +79,7 @@ Available in English and French. Free to use.
 
 ## What it calculates
 
-Given a gross pay amount and pay period, OpenPayrun computes:
+Given a gross pay amount and pay period, SCSI Tax Calculator computes:
 
 **Employee deductions**
 - QPP (Tier 1 & 2)

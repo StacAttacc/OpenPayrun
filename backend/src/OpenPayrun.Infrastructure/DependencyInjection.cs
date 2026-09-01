@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OpenPayrun.Application.Interfaces;
-using OpenPayrun.Infrastructure.Persistence;
+using ScsiTaxCalculator.Application.Interfaces;
+using ScsiTaxCalculator.Infrastructure.Persistence;
 
-namespace OpenPayrun.Infrastructure;
+namespace ScsiTaxCalculator.Infrastructure;
 
 public static class DependencyInjection
 {

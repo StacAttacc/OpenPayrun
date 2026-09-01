@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using OpenPayrun.Domain.Constants;
-using OpenPayrun.Domain.Enums;
+using ScsiTaxCalculator.Domain.Constants;
+using ScsiTaxCalculator.Domain.Enums;
 
-namespace OpenPayrun.Domain.Entities;
+namespace ScsiTaxCalculator.Domain.Entities;
 
 public class TaxRateSet : ITaxRates
 {

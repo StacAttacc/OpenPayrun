@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Xunit;
 
-namespace OpenPayrun.Api.Tests;
+namespace ScsiTaxCalculator.Api.Tests;
 
 [Collection("Api")]
 public class ApiAuthorizationTests(ApiWebApplicationFactory factory)

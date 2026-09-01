@@ -29,6 +29,6 @@ jobs:
           context: ./backend
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/stacattacc/openpayrun:${{ steps.tag.outputs.value }}
+          tags: ghcr.io/stacattacc/scsi-tax-calculator:${{ steps.tag.outputs.value }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

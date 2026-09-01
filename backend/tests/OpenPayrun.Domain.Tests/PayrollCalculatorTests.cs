@@ -1,8 +1,8 @@
-using OpenPayrun.Domain.Enums;
-using OpenPayrun.Domain.Services;
+using ScsiTaxCalculator.Domain.Enums;
+using ScsiTaxCalculator.Domain.Services;
 using Xunit;
 
-namespace OpenPayrun.Domain.Tests;
+namespace ScsiTaxCalculator.Domain.Tests;
 
 // Ground truth: FichierRetenueALasource.xlsx, sheet "Retenues & charges" (sheet2)
 // Employee: $8,333 gross/month, monthly frequency, Quebec resident

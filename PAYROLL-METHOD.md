@@ -1,6 +1,6 @@
 # Méthode de calcul des retenues à la source
 
-OpenPayrun utilise la **méthode des formules** pour le calcul de la retenue d'impôt sur le revenu — T4127 (fédéral) et TP-1015.F (impôt provincial du Québec). Ces deux méthodes sont officiellement reconnues comme alternatives à la méthode des tables (T4032 / TP-1015.TI).
+SCSI Tax Calculator utilise la **méthode des formules** pour le calcul de la retenue d'impôt sur le revenu — T4127 (fédéral) et TP-1015.F (impôt provincial du Québec). Ces deux méthodes sont officiellement reconnues comme alternatives à la méthode des tables (T4032 / TP-1015.TI).
 
 ## Pourquoi les résultats diffèrent des logiciels utilisant les tables
 

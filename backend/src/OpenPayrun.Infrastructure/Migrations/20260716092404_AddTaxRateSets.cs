@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace OpenPayrun.Infrastructure.Migrations
+namespace ScsiTaxCalculator.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class AddTaxRateSets : Migration

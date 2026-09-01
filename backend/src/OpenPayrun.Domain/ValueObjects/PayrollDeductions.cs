@@ -1,4 +1,4 @@
-namespace OpenPayrun.Domain.ValueObjects;
+namespace ScsiTaxCalculator.Domain.ValueObjects;
 
 public record PayrollDeductions
 {

@@ -1,7 +1,7 @@
-using OpenPayrun.Domain.Entities;
-using OpenPayrun.Domain.Enums;
+using ScsiTaxCalculator.Domain.Entities;
+using ScsiTaxCalculator.Domain.Enums;
 
-namespace OpenPayrun.Domain.Tests;
+namespace ScsiTaxCalculator.Domain.Tests;
 
 internal static class TaxRateFixtures
 {

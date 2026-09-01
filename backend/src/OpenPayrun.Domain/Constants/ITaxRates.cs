@@ -1,4 +1,4 @@
-namespace OpenPayrun.Domain.Constants;
+namespace ScsiTaxCalculator.Domain.Constants;
 
 public interface ITaxRates
 {
