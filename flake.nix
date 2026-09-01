@@ -18,6 +18,8 @@
             nodejs_22
             git
             csharpier
+            azure-cli
+            opentofu
           ];
 
           DOTNET_ROOT = "${pkgs.dotnet-sdk_9}";
@@ -26,6 +28,8 @@
             export NUGET_PACKAGES=$PWD/.nuget/packages
             export NPM_CONFIG_PREFIX=$PWD/.npm-global
             export PATH=$NPM_CONFIG_PREFIX/bin:$PATH
+            export AZURE_CORE_COLLECT_TELEMETRY=false
+            export OPENTOFU_CLI_NO_TELEMETRY=true
             if ! command -v ng &>/dev/null; then
               echo "  installing Angular CLI..."
               npm install -g @angular/cli --silent

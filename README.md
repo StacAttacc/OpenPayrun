@@ -55,7 +55,7 @@ Le frontend recharge automatiquement les changements de source. Le backend néce
 |--------|-------------|
 | Frontend | Angular 22, TailwindCSS v4, DaisyUI v5, TanStack Query |
 | Backend | ASP.NET Core 9, Entity Framework Core, SQL Server |
-| Infrastructure | Docker Compose (dev), Kubernetes + Flux (prod) |
+| Infrastructure | Docker Compose (dev), Azure Container Apps + Azure SQL (prod) |
 
 ### Accès administrateur
 
@@ -63,7 +63,7 @@ Les jeux de taux sont gérés depuis l'interface. Connectez-vous avec les identi
 
 ### Déploiement
 
-L'application est déployée via Flux GitOps. Un push sur `main` déclenche un build d'image ; Flux détecte le nouveau tag et met à jour le cluster automatiquement.
+L'infrastructure Azure (Container Apps, base Azure SQL) est définie avec OpenTofu dans [`terraform/`](terraform/). Un push sur `main` build et publie les images backend/frontend sur ghcr.io ; le déploiement des nouvelles images se fait pour l'instant manuellement via `tofu apply` ou `az containerapp update`. Voir [`terraform/terraform.tfvars.example`](terraform/terraform.tfvars.example) pour les variables requises. `nix develop` fournit `az` et `tofu`.
 
 ---
 
@@ -124,7 +124,7 @@ The frontend hot-reloads on source changes. The backend requires a rebuild on ch
 |-------|-----------|
 | Frontend | Angular 22, TailwindCSS v4, DaisyUI v5, TanStack Query |
 | Backend | ASP.NET Core 9, Entity Framework Core, SQL Server |
-| Infrastructure | Docker Compose (dev), Kubernetes + Flux (prod) |
+| Infrastructure | Docker Compose (dev), Azure Container Apps + Azure SQL (prod) |
 
 ### Admin access
 
@@ -132,7 +132,7 @@ Tax rate sets are managed through the UI. Log in with admin credentials to add, 
 
 ### Production deployment
 
-The app is deployed via Flux GitOps. Pushing to `main` triggers an image build; Flux detects the new tag and updates the cluster automatically.
+Azure infrastructure (Container Apps, Azure SQL database) is defined with OpenTofu in [`terraform/`](terraform/). Pushing to `main` builds and pushes backend/frontend images to ghcr.io; rolling those images out is currently a manual `tofu apply` or `az containerapp update` step. See [`terraform/terraform.tfvars.example`](terraform/terraform.tfvars.example) for required variables. `nix develop` provides `az` and `tofu`.
 
 ---
 
