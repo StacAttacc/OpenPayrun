@@ -107,6 +107,11 @@ resource "azurerm_container_app" "backend" {
     min_replicas = 1
     max_replicas = 2
 
+    # Container Apps bakes secretRef values into the revision at creation
+    # time; changing a secret alone doesn't create a new revision. Hashing
+    # the secrets into the suffix forces one whenever they rotate.
+    revision_suffix = substr(md5("${var.admin_password}${var.jwt_secret}${var.sql_admin_password}"), 0, 10)
+
     container {
       name   = "backend"
       image  = "ghcr.io/stacattacc/scsi-tax-calculator:${var.backend_image_tag}"
